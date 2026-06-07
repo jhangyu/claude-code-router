@@ -333,19 +333,28 @@ async function sendRequestToProvider(
   }
 
   // Send HTTP request
-  // Prepare headers
-  const requestHeaders: Record<string, string> = {
-    Authorization: `Bearer ${provider.apiKey}`,
-    ...(config?.headers || {}),
+  // Prepare headers: normalize authorization key casing so that config.headers
+  // (e.g. from transformer.auth) can override the default Bearer token.
+  // We build the defaults first, then apply config.headers on top using
+  // case-insensitive merging for the "authorization" header.
+  const configHeaders: Record<string, string | undefined> =
+    config?.headers || {};
+
+  // Determine whether config.headers already provides an authorization header
+  // (case-insensitive). If so, skip the default Bearer token entirely.
+  const hasAuthOverride = Object.keys(configHeaders).some(
+    (k) => k.toLowerCase() === "authorization"
+  );
+
+  const requestHeaders: Record<string, string | undefined> = {
+    ...(hasAuthOverride ? {} : { Authorization: `Bearer ${provider.apiKey}` }),
+    ...configHeaders,
   };
 
+  // Remove headers whose value is undefined (actual undefined) or the string "undefined"
   for (const key in requestHeaders) {
-    if (requestHeaders[key] === "undefined") {
-      delete requestHeaders[key];
-    } else if (
-      ["authorization", "Authorization"].includes(key) &&
-      requestHeaders[key]?.includes("undefined")
-    ) {
+    const val = requestHeaders[key];
+    if (val === undefined || val === "undefined" || val?.includes("undefined")) {
       delete requestHeaders[key];
     }
   }
