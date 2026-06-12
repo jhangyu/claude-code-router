@@ -12,6 +12,7 @@ export class VercelTransformer implements Transformer {
     request: UnifiedChatRequest
   ): Promise<UnifiedChatRequest> {
     if (!request.model.includes("claude")) {
+      delete request.cache_control;
       request.messages.forEach((msg) => {
         if (Array.isArray(msg.content)) {
           msg.content.forEach((item: any) => {
@@ -27,6 +28,11 @@ export class VercelTransformer implements Transformer {
           });
         } else if (msg.cache_control) {
           delete msg.cache_control;
+        }
+      });
+      request.tools?.forEach((tool) => {
+        if (tool.cache_control) {
+          delete tool.cache_control;
         }
       });
     } else {

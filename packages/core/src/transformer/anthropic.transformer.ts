@@ -180,6 +180,7 @@ export class AnthropicTransformer implements Transformer {
     const result: UnifiedChatRequest = {
       messages,
       model: request.model,
+      cache_control: request.cache_control,
       max_tokens: request.max_tokens,
       temperature: request.temperature,
       stream: request.stream,
@@ -245,6 +246,7 @@ export class AnthropicTransformer implements Transformer {
   private convertAnthropicToolsToUnified(tools: any[]): UnifiedTool[] {
     return tools.map((tool) => ({
       type: "function",
+      cache_control: tool.cache_control,
       function: {
         name: tool.name,
         description: tool.description || "",

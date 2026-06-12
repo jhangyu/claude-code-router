@@ -6,6 +6,7 @@ export class GroqTransformer implements Transformer {
   name = "groq";
 
   async transformRequestIn(request: UnifiedChatRequest): Promise<UnifiedChatRequest> {
+    delete request.cache_control;
     request.messages.forEach(msg => {
       if (Array.isArray(msg.content)) {
         (msg.content as MessageContent[]).forEach((item) => {
@@ -19,6 +20,7 @@ export class GroqTransformer implements Transformer {
     })
     if (Array.isArray(request.tools)) {
       request.tools.forEach(tool => {
+        delete tool.cache_control;
         delete tool.function.parameters.$schema;
       })
     }

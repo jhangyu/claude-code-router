@@ -22,12 +22,13 @@ export function convertToolsToOpenAI(
 ): ChatCompletionTool[] {
   return tools.map((tool) => ({
     type: "function" as const,
+    ...(tool.cache_control ? { cache_control: tool.cache_control } : {}),
     function: {
       name: tool.function.name,
       description: tool.function.description,
       parameters: tool.function.parameters,
     },
-  }));
+  } as ChatCompletionTool));
 }
 
 export function convertToolsToAnthropic(tools: UnifiedTool[]): AnthropicTool[] {
@@ -35,7 +36,8 @@ export function convertToolsToAnthropic(tools: UnifiedTool[]): AnthropicTool[] {
     name: tool.function.name,
     description: tool.function.description,
     input_schema: tool.function.parameters,
-  }));
+    ...(tool.cache_control ? { cache_control: tool.cache_control } : {}),
+  } as AnthropicTool));
 }
 
 export function convertToolsFromOpenAI(
@@ -43,6 +45,7 @@ export function convertToolsFromOpenAI(
 ): UnifiedTool[] {
   return tools.map((tool) => ({
     type: "function" as const,
+    cache_control: (tool as any).cache_control,
     function: {
       name: tool.function.name,
       description: tool.function.description || "",
@@ -56,6 +59,7 @@ export function convertToolsFromAnthropic(
 ): UnifiedTool[] {
   return tools.map((tool) => ({
     type: "function" as const,
+    cache_control: (tool as any).cache_control,
     function: {
       name: tool.name,
       description: tool.description || "",

@@ -1,0 +1,28 @@
+# Claude Code Router - Docker Compose Configuration
+#
+# Prerequisites:
+#   1. Ensure config.json exists at ~/.claude-code-router/config.json
+#      (or it will be created automatically on first run)
+#
+# Configuration:
+#   - Host config:  ~/.claude-code-router/config.json
+#   - Container:    /root/.claude-code-router/config.json
+#   - The config supports environment variable interpolation ($VAR_NAME or ${VAR_NAME})
+#
+# Ports:
+#   - 3456: Web UI and API (including /v1/messages and /health endpoints)
+#
+# Environment variable overrides:
+#   - SERVICE_PORT: Change the server port (default: 3456)
+#   - LOG_LEVEL: Set log verbosity (fatal/error/warn/info/debug/trace)
+
+services:
+  claude-code-router:
+    container_name: claude-code-router
+    image: jhangyu/claude-code-router:latest
+    ports:
+      - "3456:3456"
+    volumes:
+      # Persist configuration, plugins, presets, and logs
+      - ~/.claude-code-router:/root/.claude-code-router
+    restart: unless-stopped

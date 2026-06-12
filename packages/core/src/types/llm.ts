@@ -31,6 +31,7 @@ export interface TextContent {
   text: string;
   cache_control?: {
     type?: string;
+    ttl?: string;
   };
 }
 
@@ -59,6 +60,7 @@ export interface UnifiedMessage {
   tool_call_id?: string;
   cache_control?: {
     type?: string;
+    ttl?: string;
   };
   thinking?: {
     content: string;
@@ -69,6 +71,10 @@ export interface UnifiedMessage {
 // 统一的工具定义接口
 export interface UnifiedTool {
   type: "function";
+  cache_control?: {
+    type?: string;
+    ttl?: string;
+  };
   function: {
     name: string;
     description: string;
@@ -88,6 +94,10 @@ export type ThinkLevel = "none" | "low" | "medium" | "high";
 export interface UnifiedChatRequest {
   messages: UnifiedMessage[];
   model: string;
+  cache_control?: {
+    type?: string;
+    ttl?: string;
+  };
   max_tokens?: number;
   temperature?: number;
   stream?: boolean;

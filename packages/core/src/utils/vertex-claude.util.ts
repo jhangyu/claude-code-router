@@ -146,6 +146,7 @@ export function buildRequestBody(
       name: tool.function.name,
       description: tool.function.description,
       input_schema: tool.function.parameters,
+      ...(tool.cache_control ? { cache_control: tool.cache_control } : {}),
     }));
   }
 
@@ -210,6 +211,7 @@ export function transformRequestOut(
   if (vertexRequest.tools && vertexRequest.tools.length > 0) {
     result.tools = vertexRequest.tools.map((tool) => ({
       type: "function" as const,
+      cache_control: (tool as any).cache_control,
       function: {
         name: tool.name,
         description: tool.description,

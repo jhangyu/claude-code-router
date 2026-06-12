@@ -5,6 +5,7 @@ export class CleancacheTransformer implements Transformer {
   name = "cleancache";
 
   async transformRequestIn(request: UnifiedChatRequest): Promise<UnifiedChatRequest> {
+    delete request.cache_control;
     if (Array.isArray(request.messages)) {
       request.messages.forEach((msg) => {
         if (Array.isArray(msg.content)) {
@@ -18,6 +19,11 @@ export class CleancacheTransformer implements Transformer {
         }
       });
     }
+    request.tools?.forEach((tool) => {
+      if (tool.cache_control) {
+        delete tool.cache_control;
+      }
+    });
     return request;
   }
 }
