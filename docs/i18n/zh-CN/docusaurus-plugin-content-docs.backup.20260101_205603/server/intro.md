@@ -58,7 +58,7 @@ ccr start
 使用 Docker 部署，为团队成员提供共享服务：
 
 ```bash
-docker run -d -p 3456:3456 musistudio/claude-code-router
+docker run -d -p 3456:3456 jhangyu/claude-code-router
 ```
 
 ### 场景三：二次开发

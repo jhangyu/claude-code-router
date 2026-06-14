@@ -15,7 +15,7 @@ docker run -d \
   --name claude-code-router \
   -p 3456:3456 \
   -v ~/.claude-code-router:/app/.claude-code-router \
-  musistudio/claude-code-router:latest
+  jhangyu/claude-code-router:latest
 ```
 
 ### Using Docker Compose
@@ -26,7 +26,7 @@ Create `docker-compose.yml`:
 version: '3.8'
 services:
   claude-code-router:
-    image: musistudio/claude-code-router:latest
+    image: jhangyu/claude-code-router:latest
     container_name: claude-code-router
     ports:
       - "3456:3456"
@@ -50,7 +50,7 @@ docker-compose up -d
 Build Docker image from source:
 
 ```bash
-git clone https://github.com/musistudio/claude-code-router.git
+git clone https://github.com/jhangyu/claude-code-router.git
 cd claude-code-router
 docker build -t claude-code-router:latest .
 ```
@@ -64,7 +64,7 @@ docker run -d \
   --name claude-code-router \
   -p 3456:3456 \
   -v $(pwd)/config.json:/app/.claude-code-router/config.json \
-  musistudio/claude-code-router:latest
+  jhangyu/claude-code-router:latest
 ```
 
 Configuration file example:
@@ -149,7 +149,7 @@ Configure log rotation and persistence:
 version: '3.8'
 services:
   claude-code-router:
-    image: musistudio/claude-code-router:latest
+    image: jhangyu/claude-code-router:latest
     volumes:
       - ./logs:/app/.claude-code-router/logs
     environment:

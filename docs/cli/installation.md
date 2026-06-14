@@ -15,19 +15,19 @@ Install Claude Code Router globally using your preferred package manager.
 ## Install via npm
 
 ```bash
-npm install -g @musistudio/claude-code-router
+npm install -g @jhangyu/claude-code-router
 ```
 
 ## Install via pnpm
 
 ```bash
-pnpm add -g @musistudio/claude-code-router
+pnpm add -g @jhangyu/claude-code-router
 ```
 
 ## Install via Yarn
 
 ```bash
-yarn global add @musistudio/claude-code-router
+yarn global add @jhangyu/claude-code-router
 ```
 
 ## Verify Installation

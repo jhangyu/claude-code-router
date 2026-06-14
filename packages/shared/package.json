@@ -13,7 +13,7 @@
     "router",
     "shared"
   ],
-  "author": "musistudio",
+  "author": "jhangyu",
   "license": "MIT",
   "dependencies": {
     "adm-zip": "^0.5.16",

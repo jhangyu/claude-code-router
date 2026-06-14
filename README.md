@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/badge/%F0%9F%87%A8%F0%9F%87%B3-%E4%B8%AD%E6%96%87%E7%89%88-ff0000?style=flat)](README_zh.md)
 [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?&logo=discord&logoColor=white)](https://discord.gg/rdftVMaUcS)
-[![](https://img.shields.io/github/license/musistudio/claude-code-router)](https://github.com/musistudio/claude-code-router/blob/main/LICENSE)
+[![](https://img.shields.io/github/license/jhangyu/claude-code-router)](https://github.com/jhangyu/claude-code-router/blob/main/LICENSE)
 
 <hr>
 
@@ -42,7 +42,7 @@ npm install -g @anthropic-ai/claude-code
 Then, install Claude Code Router:
 
 ```shell
-npm install -g @musistudio/claude-code-router
+npm install -g @jhangyu/claude-code-router
 ```
 
 ### 2. Configuration
@@ -556,7 +556,7 @@ jobs:
 
       - name: Start Claude Code Router
         run: |
-          nohup ~/.bun/bin/bunx @musistudio/claude-code-router@1.0.8 start &
+          nohup ~/.bun/bin/bunx @jhangyu/claude-code-router@1.0.8 start &
         shell: bash
 
       - name: Run Claude Code

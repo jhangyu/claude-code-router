@@ -1,5 +1,5 @@
 {
-  "name": "@musistudio/llms",
+  "name": "@jhangyu/llms",
   "version": "1.0.51",
   "description": "A universal LLM API transformation server",
   "main": "dist/cjs/server.cjs",
@@ -30,7 +30,7 @@
     "transformer",
     "api"
   ],
-  "author": "musistudio",
+  "author": "jhangyu",
   "license": "MIT",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.54.0",

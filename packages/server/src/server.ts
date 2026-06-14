@@ -1,4 +1,4 @@
-import Server, { calculateTokenCount, TokenizerService } from "@musistudio/llms";
+import Server, { calculateTokenCount, TokenizerService } from "@jhangyu/llms";
 import { readConfigFile, writeConfigFile, backupConfigFile } from "./utils";
 import { join } from "path";
 import fastifyStatic from "@fastify/static";

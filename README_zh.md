@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/badge/%F0%9F%87%AC%F0%9F%87%A7-English-000aff?style=flat)](README.md)
 [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?&logo=discord&logoColor=white)](https://discord.gg/rdftVMaUcS)
-[![](https://img.shields.io/github/license/musistudio/claude-code-router)](https://github.com/musistudio/claude-code-router/blob/main/LICENSE)
+[![](https://img.shields.io/github/license/jhangyu/claude-code-router)](https://github.com/jhangyu/claude-code-router/blob/main/LICENSE)
 
 <hr>
 
@@ -40,7 +40,7 @@ npm install -g @anthropic-ai/claude-code
 然后，安装 Claude Code Router：
 
 ```shell
-npm install -g @musistudio/claude-code-router
+npm install -g @jhangyu/claude-code-router
 ```
 
 ### 2. 配置
@@ -528,7 +528,7 @@ jobs:
 
       - name: Start Claude Code Router
         run: |
-          nohup ~/.bun/bin/bunx @musistudio/claude-code-router@1.0.8 start &
+          nohup ~/.bun/bin/bunx @jhangyu/claude-code-router@1.0.8 start &
         shell: bash
 
       - name: Run Claude Code

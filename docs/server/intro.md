@@ -18,7 +18,7 @@ Claude Code Router Server is a core service component responsible for routing Cl
 ┌─────────────┐     ┌─────────────────────────────┐     ┌──────────────┐
 │ Claude Code │────▶│ CCR Server                  │────▶│ LLM Provider │
 │   Client    │     │  ┌─────────────────────┐    │     │  (OpenAI/    │
-└─────────────┘     │  │ @musistudio/llms    │    │     │   Gemini/etc)│
+└─────────────┘     │  │ @jhangyu/llms    │    │     │   Gemini/etc)│
                     │  │ (Core Package)       │    │     └──────────────┘
                     │  │ - Request Transform  │    │
                     │  │ - Response Transform │    │
@@ -35,13 +35,13 @@ Claude Code Router Server is a core service component responsible for routing Cl
                            └─ Logs API
 ```
 
-## Core Package: @musistudio/llms
+## Core Package: @jhangyu/llms
 
-The server is built on top of **@musistudio/llms**, a universal LLM API transformation library that provides the core request/response transformation capabilities.
+The server is built on top of **@jhangyu/llms**, a universal LLM API transformation library that provides the core request/response transformation capabilities.
 
-### What is @musistudio/llms?
+### What is @jhangyu/llms?
 
-`@musistudio/llms` is a standalone npm package (`@musistudio/llms`) that handles:
+`@jhangyu/llms` is a standalone npm package (`@jhangyu/llms`) that handles:
 
 - **API Format Conversion**: Transforms between different LLM provider APIs (Anthropic, OpenAI, Gemini, etc.)
 - **Request/Response Transformation**: Converts requests and responses to a unified format
@@ -101,7 +101,7 @@ The core package includes transformers for:
 
 ### Integration with CCR Server
 
-The CCR server integrates `@musistudio/llms` through:
+The CCR server integrates `@jhangyu/llms` through:
 
 1. **Transformer Service** (`packages/core/src/services/transformer.ts`): Manages transformer registration and instantiation
 2. **Provider Configuration**: Maps provider configs to core package's LLMProvider interface
@@ -110,7 +110,7 @@ The CCR server integrates `@musistudio/llms` through:
 
 ### Version and Updates
 
-The current version of `@musistudio/llms` is `1.0.51`. It's published as an independent npm package and can be used standalone or as part of CCR Server.
+The current version of `@jhangyu/llms` is `1.0.51`. It's published as an independent npm package and can be used standalone or as part of CCR Server.
 
 ## Core Features
 
@@ -148,7 +148,7 @@ ccr start
 Deploy using Docker to provide shared service for team members:
 
 ```bash
-docker run -d -p 3456:3456 musistudio/claude-code-router
+docker run -d -p 3456:3456 jhangyu/claude-code-router
 ```
 
 ### Scenario 3: Secondary Development
