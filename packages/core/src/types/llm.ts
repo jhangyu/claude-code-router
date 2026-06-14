@@ -25,14 +25,16 @@ export interface Annotation {
   url_citation?: UrlCitation;
 }
 
+export interface CacheControl {
+  type?: string;
+  ttl?: string;
+}
+
 // 内容类型定义
 export interface TextContent {
   type: "text";
   text: string;
-  cache_control?: {
-    type?: string;
-    ttl?: string;
-  };
+  cache_control?: CacheControl;
 }
 
 export interface ImageContent {
@@ -58,10 +60,7 @@ export interface UnifiedMessage {
     };
   }>;
   tool_call_id?: string;
-  cache_control?: {
-    type?: string;
-    ttl?: string;
-  };
+  cache_control?: CacheControl;
   thinking?: {
     content: string;
     signature?: string;
@@ -71,10 +70,7 @@ export interface UnifiedMessage {
 // 统一的工具定义接口
 export interface UnifiedTool {
   type: "function";
-  cache_control?: {
-    type?: string;
-    ttl?: string;
-  };
+  cache_control?: CacheControl;
   function: {
     name: string;
     description: string;
@@ -94,10 +90,7 @@ export type ThinkLevel = "none" | "low" | "medium" | "high";
 export interface UnifiedChatRequest {
   messages: UnifiedMessage[];
   model: string;
-  cache_control?: {
-    type?: string;
-    ttl?: string;
-  };
+  cache_control?: CacheControl;
   max_tokens?: number;
   temperature?: number;
   stream?: boolean;

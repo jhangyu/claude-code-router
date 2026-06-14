@@ -1,6 +1,7 @@
 import { UnifiedChatRequest } from "@/types/llm";
 import { Transformer, TransformerOptions } from "../types/transformer";
 import { v4 as uuidv4 } from "uuid";
+import { stripCacheControl } from "@/utils/cache-control";
 
 export class VercelTransformer implements Transformer {
   static TransformerName = "vercel";
@@ -12,13 +13,11 @@ export class VercelTransformer implements Transformer {
     request: UnifiedChatRequest
   ): Promise<UnifiedChatRequest> {
     if (!request.model.includes("claude")) {
-      delete request.cache_control;
+      stripCacheControl(request);
+      // Keep image handling for non-claude
       request.messages.forEach((msg) => {
         if (Array.isArray(msg.content)) {
           msg.content.forEach((item: any) => {
-            if (item.cache_control) {
-              delete item.cache_control;
-            }
             if (item.type === "image_url") {
               if (!item.image_url.url.startsWith("http")) {
                 item.image_url.url = `data:${item.media_type};base64,${item.image_url.url}`;
@@ -26,13 +25,6 @@ export class VercelTransformer implements Transformer {
               delete item.media_type;
             }
           });
-        } else if (msg.cache_control) {
-          delete msg.cache_control;
-        }
-      });
-      request.tools?.forEach((tool) => {
-        if (tool.cache_control) {
-          delete tool.cache_control;
         }
       });
     } else {
@@ -61,7 +53,7 @@ export class VercelTransformer implements Transformer {
         statusText: response.statusText,
         headers: response.headers,
       });
-    } else if (response.headers.get("Content-Type")?.includes("stream")) {
+    } else if (response.headers.get("Content-Type")?.includes("text/event-stream")) {
       if (!response.body) {
         return response;
       }
@@ -115,9 +107,11 @@ export class VercelTransformer implements Transformer {
                     { usage: data.usage, hasToolCall },
                     "usage"
                   );
-                  data.choices[0].finish_reason = hasToolCall
-                    ? "tool_calls"
-                    : "stop";
+                  if (data.choices?.[0]) {
+                    data.choices[0].finish_reason = hasToolCall
+                      ? "tool_calls"
+                      : "stop";
+                  }
                 }
 
                 if (data.choices?.[0]?.finish_reason === "error") {

@@ -70,7 +70,7 @@ export class AnthropicTransformer implements Transformer {
       }
     }
 
-    const requestMessages = JSON.parse(JSON.stringify(request.messages || []));
+    const requestMessages = structuredClone(request.messages || []);
 
     requestMessages?.forEach((msg: any) => {
       if (msg.role === "user" || msg.role === "assistant") {
@@ -135,18 +135,26 @@ export class AnthropicTransformer implements Transformer {
               role: "assistant",
               content: "",
             };
-            const textParts = msg.content.filter(
-              (c: any) => c.type === "text" && c.text
-            );
+            const textParts: any[] = [];
+            const toolCallParts: any[] = [];
+            let thinkingPart: any = null;
+
+            for (const c of msg.content as any[]) {
+              if (c.type === "text" && c.text) {
+                textParts.push(c);
+              } else if (c.type === "tool_use" && c.id) {
+                toolCallParts.push(c);
+              } else if (c.type === "thinking" && c.signature && !thinkingPart) {
+                thinkingPart = c;
+              }
+            }
+
             if (textParts.length) {
               assistantMessage.content = textParts
                 .map((text: any) => text.text)
                 .join("\n");
             }
 
-            const toolCallParts = msg.content.filter(
-              (c: any) => c.type === "tool_use" && c.id
-            );
             if (toolCallParts.length) {
               assistantMessage.tool_calls = toolCallParts.map((tool: any) => {
                 return {
@@ -160,9 +168,6 @@ export class AnthropicTransformer implements Transformer {
               });
             }
 
-            const thinkingPart = msg.content.find(
-              (c: any) => c.type === "thinking" && c.signature
-            );
             if (thinkingPart) {
               assistantMessage.thinking = {
                 content: thinkingPart.thinking,
@@ -850,6 +855,11 @@ export class AnthropicTransformer implements Transformer {
                             )
                           );
                         } catch (fixError) {
+                          this.logger?.warn({
+                            reqId: context.req.id,
+                            error: fixError instanceof Error ? fixError.message : String(fixError),
+                            arguments: toolCall.function?.arguments,
+                          }, "Failed to serialize tool call arguments, chunk dropped");
                           console.error(fixError);
                         }
                       }
@@ -998,6 +1008,7 @@ export class AnthropicTransformer implements Transformer {
       }
       if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
         choice.message.tool_calls.forEach((toolCall) => {
+          if (toolCall.type !== 'function') return;
           let parsedInput = {};
           try {
             const argumentsStr = toolCall.function.arguments || "{}";

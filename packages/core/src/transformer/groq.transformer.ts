@@ -1,26 +1,15 @@
 import { MessageContent, TextContent, UnifiedChatRequest } from "@/types/llm";
 import { Transformer } from "../types/transformer";
+import { stripCacheControl } from "@/utils/cache-control";
 import { v4 as uuidv4 } from "uuid"
 
 export class GroqTransformer implements Transformer {
   name = "groq";
 
   async transformRequestIn(request: UnifiedChatRequest): Promise<UnifiedChatRequest> {
-    delete request.cache_control;
-    request.messages.forEach(msg => {
-      if (Array.isArray(msg.content)) {
-        (msg.content as MessageContent[]).forEach((item) => {
-          if ((item as TextContent).cache_control) {
-            delete (item as TextContent).cache_control;
-          }
-        });
-      } else if (msg.cache_control) {
-        delete msg.cache_control;
-      }
-    })
+    stripCacheControl(request);
     if (Array.isArray(request.tools)) {
       request.tools.forEach(tool => {
-        delete tool.cache_control;
         delete tool.function.parameters.$schema;
       })
     }
@@ -35,7 +24,7 @@ export class GroqTransformer implements Transformer {
         statusText: response.statusText,
         headers: response.headers,
       });
-    } else if (response.headers.get("Content-Type")?.includes("stream")) {
+    } else if (response.headers.get("Content-Type")?.includes("text/event-stream")) {
       if (!response.body) {
         return response;
       }

@@ -1,4 +1,4 @@
-import { UnifiedChatRequest, UnifiedMessage, UnifiedTool } from "../types/llm";
+import { UnifiedChatRequest, UnifiedMessage, UnifiedTool, CacheControl } from "../types/llm";
 
 // Vertex Claude message interface
 interface ClaudeMessage {
@@ -85,10 +85,14 @@ export function buildRequestBody(
       message.content.forEach((item) => {
         if (item.type === "text") {
           // Keep all text content, even empty strings
-          content.push({
+          const textBlock: any = {
             type: "text",
             text: item.text || "",
-          });
+          };
+          if ((item as any).cache_control) {
+            textBlock.cache_control = (item as any).cache_control;
+          }
+          content.push(textBlock);
         } else if (item.type === "image_url") {
           // Handle image content
           content.push({
@@ -126,18 +130,23 @@ export function buildRequestBody(
       });
     }
 
-    messages.push({
+    const claudeMessage: any = {
       role: message.role === "assistant" ? "assistant" : "user",
       content,
-    });
+    };
+    if (message.cache_control) {
+      claudeMessage.cache_control = message.cache_control;
+    }
+    messages.push(claudeMessage);
   }
 
-  const requestBody: VertexClaudeRequest = {
+  const requestBody: any = {
     anthropic_version: "vertex-2023-10-16",
     messages,
     max_tokens: request.max_tokens || 1000,
     stream: request.stream || false,
     ...(request.temperature && { temperature: request.temperature }),
+    ...(request.cache_control && { cache_control: request.cache_control }),
   };
 
   // Handle tool definitions
@@ -211,7 +220,7 @@ export function transformRequestOut(
   if (vertexRequest.tools && vertexRequest.tools.length > 0) {
     result.tools = vertexRequest.tools.map((tool) => ({
       type: "function" as const,
-      cache_control: (tool as any).cache_control,
+      cache_control: (tool as unknown as { cache_control?: CacheControl }).cache_control,
       function: {
         name: tool.name,
         description: tool.description,

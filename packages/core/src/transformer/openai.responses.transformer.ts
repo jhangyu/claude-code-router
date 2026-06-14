@@ -608,9 +608,8 @@ export class OpenAIResponsesTransformer implements Transformer {
   }
 
   private normalizeRequestContent(content: any, role: string | undefined) {
-    // 克隆内容对象并删除缓存控制字段
+    // Clone the content object
     const clone = { ...content };
-    delete clone.cache_control;
 
     if (content.type === "text") {
       return {

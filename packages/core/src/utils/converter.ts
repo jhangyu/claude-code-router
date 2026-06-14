@@ -9,6 +9,7 @@ import {
   OpenAIChatRequest,
   AnthropicChatRequest,
   ConversionOptions,
+  CacheControl,
 } from "../types/llm";
 
 // Simple logger function
@@ -45,7 +46,7 @@ export function convertToolsFromOpenAI(
 ): UnifiedTool[] {
   return tools.map((tool) => ({
     type: "function" as const,
-    cache_control: (tool as any).cache_control,
+    cache_control: (tool as unknown as { cache_control?: CacheControl }).cache_control,
     function: {
       name: tool.function.name,
       description: tool.function.description || "",
@@ -59,7 +60,7 @@ export function convertToolsFromAnthropic(
 ): UnifiedTool[] {
   return tools.map((tool) => ({
     type: "function" as const,
-    cache_control: (tool as any).cache_control,
+    cache_control: (tool as unknown as { cache_control?: CacheControl }).cache_control,
     function: {
       name: tool.name,
       description: tool.description || "",
@@ -97,6 +98,7 @@ export function convertToOpenAI(
     const message: any = {
       role: msg.role,
       content: msg.content,
+      ...(msg.cache_control && { cache_control: msg.cache_control }),
     };
 
     if (msg.tool_calls && msg.tool_calls.length > 0) {
@@ -151,6 +153,7 @@ export function convertToOpenAI(
     max_tokens: request.max_tokens,
     temperature: request.temperature,
     stream: request.stream,
+    ...(request.cache_control && { cache_control: request.cache_control }),
   };
 
   if (request.tools && request.tools.length > 0) {
@@ -225,6 +228,7 @@ export function convertFromOpenAI(
             ? msg.content
             : JSON.stringify(msg.content),
         tool_call_id: (msg as any).tool_call_id,
+        ...((msg as any).cache_control && { cache_control: (msg as any).cache_control }),
       };
     }
 
@@ -235,6 +239,7 @@ export function convertFromOpenAI(
           ? msg.content
           : JSON.stringify(msg.content),
       ...((msg as any).tool_calls && { tool_calls: (msg as any).tool_calls }),
+      ...((msg as any).cache_control && { cache_control: (msg as any).cache_control }),
     };
   });
 
@@ -244,6 +249,7 @@ export function convertFromOpenAI(
     max_tokens: request.max_tokens,
     temperature: request.temperature,
     stream: request.stream,
+    ...((request as any).cache_control && { cache_control: (request as any).cache_control }),
   };
 
   if (request.tools && request.tools.length > 0) {
@@ -443,6 +449,7 @@ export function convertFromAnthropic(
     max_tokens: request.max_tokens,
     temperature: request.temperature,
     stream: request.stream,
+    ...((request as any).cache_control && { cache_control: (request as any).cache_control }),
   };
 
   if (request.tools && request.tools.length > 0) {
