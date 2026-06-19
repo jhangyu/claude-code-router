@@ -242,6 +242,27 @@ ui (standalone frontend application)
 6. **Code comments**: All comments in code MUST be written in English
 7. **Documentation**: When implementing new features, add documentation to the docs project instead of creating standalone md files
 
+## Git Remotes and Push Rules
+
+| Remote   | URL                                                | Role     |
+|----------|----------------------------------------------------|----------|
+| `origin` | `https://github.com/musistudio/claude-code-router` | Upstream |
+| `fork`   | `https://github.com/jhangyu/claude-code-router`    | Fork     |
+
+**Push Rules:**
+
+- **NEVER push to `origin/main`** — this is the upstream repo. All contributions go through the fork.
+- Always push to `fork/main`: `git push fork main`
+- All commits and tags go to `fork` only
+
+## Release Infrastructure
+
+| Target      | Registry/Repo                          |
+|-------------|----------------------------------------|
+| npm         | `@jhangyu/claude-code-router`         |
+| Docker Hub  | `jhangyu/claude-code-router`          |
+| GitHub      | `jhangyu/claude-code-router` (fork)   |
+
 ## Configuration Example Locations
 
 - Main configuration example: Complete example in README.md
