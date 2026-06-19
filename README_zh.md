@@ -4,14 +4,7 @@
 [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?&logo=discord&logoColor=white)](https://discord.gg/rdftVMaUcS)
 [![](https://img.shields.io/github/license/jhangyu/claude-code-router)](https://github.com/jhangyu/claude-code-router/blob/main/LICENSE)
 
-<hr>
-
-![](blog/images/sponsors/glm-zh.jpg)
-> 本專案由 Z智譜 提供贊助，他們透過 GLM CODING PLAN 對本專案提供技術支援。
-> GLM CODING PLAN 是專為 AI 編碼打造的訂閱方案，每月最低僅需 20 元，即可在十餘款主流 AI 編碼工具（Claude Code、Cline、Roo Code 等）中暢享智譜旗艦模型 GLM-4.7（受限於算力，目前僅限 Pro 用戶開放 GLM-5），為開發者提供頂尖的編碼體驗。
-> 智譜 AI 為本產品提供了特別優惠，使用以下連結購買可享九折優惠：https://www.bigmodel.cn/claude-code?ic=RRVJPB5SII
-
-> [從 CLI 工具風格看工具漸進式披露](/blog/zh/從CLI工具風格看工具漸進式披露.md)
+[從 CLI 工具風格看工具漸進式披露](/blog/zh/從CLI工具風格看工具漸進式披露.md)
 
 > 一款強大的工具，可將 Claude Code 請求路由到不同的模型，並自訂任何請求。
 
@@ -631,130 +624,97 @@ jobs:
 -   [也許我們可以用路由器做更多事情](blog/zh/或許我們能在Router中做更多事情.md)
 -   [GLM-4.6 支援思考及思維鏈回傳](blog/zh/GLM-4.6支持思考及思维链回传.md)
 
-## ❤️ 支援與贊助
+## 🐳 Docker 部署
 
-如果您覺得這個專案有幫助，請考慮贊助它的開發。非常感謝您的支援！
+### 使用 Docker Compose（推薦）
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F1F31GN2GM)
+建立 `docker-compose.yml`：
 
-[Paypal](https://paypal.me/musistudio1999)
+```yaml
+services:
+  claude-code-router:
+    container_name: claude-code-router
+    image: jhangyu/claude-code-router:latest
+    ports:
+      - "3456:3456"
+    volumes:
+      - ~/.claude-code-router:/root/.claude-code-router
+    restart: unless-stopped
+```
 
-<table>
-  <tr>
-    <td><img src="/blog/images/alipay.jpg" width="200" alt="Alipay" /></td>
-    <td><img src="/blog/images/wechat.jpg" width="200" alt="WeChat Pay" /></td>
-  </tr>
-</table>
+```shell
+# 啟動服務
+docker compose up -d
 
-### 我們的贊助商
+# 查看日誌
+docker compose logs -f
 
-非常感謝所有贊助商的慷慨支援！
+# 停止服務
+docker compose down
+```
 
-- [AIHubmix](https://aihubmix.com/)
-- [BurnCloud](https://ai.burncloud.com)
-- [302.AI](https://share.302.ai/ZGVF9w)
-- [Z智譜](https://www.bigmodel.cn/claude-code?ic=FPF9IVAGFJ)
-- @Simon Leischnig
-- [@duanshuaimin](https://github.com/duanshuaimin)
-- [@vrgitadmin](https://github.com/vrgitadmin)
-- @*o
-- [@ceilwoo](https://github.com/ceilwoo)
-- @*說
-- @*更
-- @K*g
-- @R*R
-- [@bobleer](https://github.com/bobleer)
-- @*苗
-- @*劃
-- [@Clarence-pan](https://github.com/Clarence-pan)
-- [@carter003](https://github.com/carter003)
-- @S*r
-- @*暉
-- @*敏
-- @Z*z
-- @*然
-- [@cluic](https://github.com/cluic)
-- @*苗
-- [@PromptExpert](https://github.com/PromptExpert)
-- @*應
-- [@yusnake](https://github.com/yusnake)
-- @*飛
-- @董*
-- @*汀
-- @*涯
-- @*:-）
-- @**磊
-- @*琢
-- @*成
-- @Z*o
-- @\*琨
-- [@congzhangzh](https://github.com/congzhangzh)
-- @*_
-- @Z\*m
-- @*鑫
-- @c\*y
-- @\*昕
-- [@witsice](https://github.com/witsice)
-- @b\*g
-- @\*億
-- @\*輝
-- @JACK 
-- @\*光
-- @W\*l
-- [@kesku](https://github.com/kesku)
-- [@biguncle](https://github.com/biguncle)
-- @二吉吉
-- @a\*g
-- @\*林
-- @\*鹹
-- @\*明
-- @S\*y
-- @f\*o
-- @\*智
-- @F\*t
-- @r\*c
-- [@qierkang](http://github.com/qierkang)
-- @\*軍
-- [@snrise-z](http://github.com/snrise-z)
-- @\*王
-- [@greatheart1000](http://github.com/greatheart1000)
-- @\*王
-- @zcutlip
-- [@Peng-YM](http://github.com/Peng-YM)
-- @\*更
-- @\*.
-- @F\*t
-- @\*政
-- @\*銘
-- @\*葉
-- @七\*o
-- @\*青
-- @\*\*晨
-- @\*遠
-- @\*霄
-- @\*\*吉
-- @\*\*飛
-- @\*\*馳
-- @x\*g
-- @\*\*東
-- @\*落
-- @哆\*k
-- @\*濤
-- [@苗大](https://github.com/WitMiao)
-- @\*呢
-- @\d*u
-- @crizcraig
-- s\*s
-- \*火
-- \*勤
-- \*\*錕
-- \*濤
-- \*\*明
-- \*知
-- \*語
-- \*瓜
+### 使用 Docker Run
 
-（如果您的名字被屏蔽，請透過我的主頁電子郵件與我聯繫，以便使用您的 GitHub 使用者名稱進行更新。）
+```shell
+docker run -d \
+  --name claude-code-router \
+  -p 3456:3456 \
+  -v ~/.claude-code-router:/root/.claude-code-router \
+  --restart unless-stopped \
+  jhangyu/claude-code-router:latest
+```
+
+### 設定
+
+在啟動容器前，將 `config.json` 放置在 `~/.claude-code-router/config.json`。設定目錄已作為 volume 掛載，重啟後變更即可生效：
+
+```shell
+# 修改設定後重啟
+docker restart claude-code-router
+```
+
+您也可以透過環境變數插值功能傳入設定（參閱上方[環境變數插值](#環境變數插值)）。
+
+### 從原始碼構建
+
+**多架構構建（amd64 + arm64）：**
+
+```shell
+docker build -f Dockerfile.multiarch -t claude-code-router .
+```
+
+**僅構建伺服器：**
+
+```shell
+docker build -f packages/server/Dockerfile -t claude-code-router .
+```
+
+### 健康檢查
+
+容器在埠 `3456` 上提供健康檢查端點。驗證服務是否正常執行：
+
+```shell
+curl http://localhost:3456/health
+```
+
+### 環境變數
+
+| 變數 | 說明 | 預設值 |
+|----------|-------------|---------|
+| `PORT` | 伺服器監聽埠 | `3456` |
+| `LOG_LEVEL` | 日誌等級（`fatal`/`error`/`warn`/`info`/`debug`/`trace`） | `debug` |
+| `API_TIMEOUT_MS` | API 請求逾時時間（毫秒） | `600000` |
+
+這些可以在 `docker-compose.yml` 中設定：
+
+```yaml
+services:
+  claude-code-router:
+    # ...
+    environment:
+      - LOG_LEVEL=info
+      - API_TIMEOUT_MS=300000
+```
 
 
 ## 交流群

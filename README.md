@@ -4,16 +4,7 @@
 [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?&logo=discord&logoColor=white)](https://discord.gg/rdftVMaUcS)
 [![](https://img.shields.io/github/license/jhangyu/claude-code-router)](https://github.com/jhangyu/claude-code-router/blob/main/LICENSE)
 
-<hr>
-
-![](blog/images/sponsors/glm-en.jpg)
-> This project is sponsored by Z.ai, supporting us with their GLM CODING PLAN.
-
-> GLM CODING PLAN is a subscription service designed for AI coding, starting at just $10/month. It provides access to their flagship GLM-4.7 & （GLM-5 Only Available  for Pro Users）model across 10+ popular AI coding tools (Claude Code, Cline, Roo Code, etc.), offering developers top-tier, fast, and stable coding experiences.
-
-> Get 10% OFF GLM CODING PLAN：https://z.ai/subscribe?ic=8JVLJQFSKB  
-
-> [Progressive Disclosure of Agent Tools from the Perspective of CLI Tool Style](/blog/en/progressive-disclosure-of-agent-tools-from-the-perspective-of-cli-tool-style.md)
+[Progressive Disclosure of Agent Tools from the Perspective of CLI Tool Style](/blog/en/progressive-disclosure-of-agent-tools-from-the-perspective-of-cli-tool-style.md)
 
 > A powerful tool to route Claude Code requests to different models and customize any request.
 
@@ -638,129 +629,94 @@ This setup allows for interesting automations, like running tasks during off-pea
 - [Maybe We Can Do More with the Router](blog/en/maybe-we-can-do-more-with-the-route.md)
 - [GLM-4.6 Supports Reasoning and Interleaved Thinking](blog/en/glm-4.6-supports-reasoning.md)
 
-## ❤️ Support & Sponsoring
+## 🐳 Docker Deployment
 
-If you find this project helpful, please consider sponsoring its development. Your support is greatly appreciated!
+### Using Docker Compose (Recommended)
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/F1F31GN2GM)
+Create a `docker-compose.yml`:
 
-[Paypal](https://paypal.me/musistudio1999)
+```yaml
+services:
+  claude-code-router:
+    container_name: claude-code-router
+    image: jhangyu/claude-code-router:latest
+    ports:
+      - "3456:3456"
+    volumes:
+      - ~/.claude-code-router:/root/.claude-code-router
+    restart: unless-stopped
+```
 
-<table>
-  <tr>
-    <td><img src="/blog/images/alipay.jpg" width="200" alt="Alipay" /></td>
-    <td><img src="/blog/images/wechat.jpg" width="200" alt="WeChat Pay" /></td>
-  </tr>
-</table>
+```shell
+# Start the service
+docker compose up -d
 
-### Our Sponsors
+# Check logs
+docker compose logs -f
 
-A huge thank you to all our sponsors for their generous support!
+# Stop the service
+docker compose down
+```
 
+### Using Docker Run
 
-- [AIHubmix](https://aihubmix.com/)
-- [BurnCloud](https://ai.burncloud.com)
-- [302.AI](https://share.302.ai/ZGVF9w)
-- [Z智谱](https://www.bigmodel.cn/claude-code?ic=FPF9IVAGFJ)
-- @Simon Leischnig
-- [@duanshuaimin](https://github.com/duanshuaimin)
-- [@vrgitadmin](https://github.com/vrgitadmin)
-- @\*o
-- [@ceilwoo](https://github.com/ceilwoo)
-- @\*说
-- @\*更
-- @K\*g
-- @R\*R
-- [@bobleer](https://github.com/bobleer)
-- @\*苗
-- @\*划
-- [@Clarence-pan](https://github.com/Clarence-pan)
-- [@carter003](https://github.com/carter003)
-- @S\*r
-- @\*晖
-- @\*敏
-- @Z\*z
-- @\*然
-- [@cluic](https://github.com/cluic)
-- @\*苗
-- [@PromptExpert](https://github.com/PromptExpert)
-- @\*应
-- [@yusnake](https://github.com/yusnake)
-- @\*飞
-- @董\*
-- @\*汀
-- @\*涯
-- @\*:-）
-- @\*\*磊
-- @\*琢
-- @\*成
-- @Z\*o
-- @\*琨
-- [@congzhangzh](https://github.com/congzhangzh)
-- @\*\_
-- @Z\*m
-- @*鑫
-- @c\*y
-- @\*昕
-- [@witsice](https://github.com/witsice)
-- @b\*g
-- @\*亿
-- @\*辉
-- @JACK
-- @\*光
-- @W\*l
-- [@kesku](https://github.com/kesku)
-- [@biguncle](https://github.com/biguncle)
-- @二吉吉
-- @a\*g
-- @\*林
-- @\*咸
-- @\*明
-- @S\*y
-- @f\*o
-- @\*智
-- @F\*t
-- @r\*c
-- [@qierkang](http://github.com/qierkang)
-- @\*军
-- [@snrise-z](http://github.com/snrise-z)
-- @\*王
-- [@greatheart1000](http://github.com/greatheart1000)
-- @\*王
-- @zcutlip
-- [@Peng-YM](http://github.com/Peng-YM)
-- @\*更
-- @\*.
-- @F\*t
-- @\*政
-- @\*铭
-- @\*叶
-- @七\*o
-- @\*青
-- @\*\*晨
-- @\*远
-- @\*霄
-- @\*\*吉
-- @\*\*飞
-- @\*\*驰
-- @x\*g
-- @\*\*东
-- @\*落
-- @哆\*k
-- @\*涛
-- [@苗大](https://github.com/WitMiao)
-- @\*呢
-- @\d*u
-- @crizcraig
-- s\*s
-- \*火
-- \*勤
-- \*\*锟
-- \*涛
-- \*\*明
-- \*知
-- \*语
-- \*瓜
+```shell
+docker run -d \
+  --name claude-code-router \
+  -p 3456:3456 \
+  -v ~/.claude-code-router:/root/.claude-code-router \
+  --restart unless-stopped \
+  jhangyu/claude-code-router:latest
+```
 
+### Configuration
 
-(If your name is masked, please contact me via my homepage email to update it with your GitHub username.)
+Place your `config.json` at `~/.claude-code-router/config.json` before starting the container. The configuration directory is mounted as a volume, so changes take effect on restart:
+
+```shell
+# Restart after config changes
+docker restart claude-code-router
+```
+
+You can also pass configuration via environment variables using the interpolation feature (see [Environment Variable Interpolation](#environment-variable-interpolation) above).
+
+### Building from Source
+
+**Multi-arch build (amd64 + arm64):**
+
+```shell
+docker build -f Dockerfile.multiarch -t claude-code-router .
+```
+
+**Server-only build:**
+
+```shell
+docker build -f packages/server/Dockerfile -t claude-code-router .
+```
+
+### Health Check
+
+The container exposes a health check endpoint at port `3456`. Verify it's running:
+
+```shell
+curl http://localhost:3456/health
+```
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server listen port | `3456` |
+| `LOG_LEVEL` | Log verbosity (`fatal`/`error`/`warn`/`info`/`debug`/`trace`) | `debug` |
+| `API_TIMEOUT_MS` | API request timeout in ms | `600000` |
+
+These can be set in `docker-compose.yml`:
+
+```yaml
+services:
+  claude-code-router:
+    # ...
+    environment:
+      - LOG_LEVEL=info
+      - API_TIMEOUT_MS=300000
+```
