@@ -716,6 +716,3 @@ services:
       - API_TIMEOUT_MS=300000
 ```
 
-
-## 交流群
-<img src="/blog/images/wechat_group.jpg" width="200" alt="wechat_group" />
