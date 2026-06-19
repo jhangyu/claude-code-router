@@ -1,11 +1,11 @@
 {
     "schema_version": 1,
-    "commit": "ce23ef5973ddc1d1fbe9902a75cb2adf73421581",
-    "indexed_at": "2026-06-19T08:13:45Z",
+    "commit": "9d4fa7028dbb5b8737fca69a2397afa1671654c3",
+    "indexed_at": "2026-06-19T08:25:56Z",
     "project": "Users-jhangyu-project-claude-code-router",
-    "nodes": 1666,
-    "edges": 4101,
-    "original_size": 3342336,
-    "compressed_size": 315272,
-    "compression_level": 9
+    "nodes": 4317,
+    "edges": 7432,
+    "original_size": 10944512,
+    "compressed_size": 1651578,
+    "compression_level": 3
 }

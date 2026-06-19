@@ -2,12 +2,12 @@
 set -e
 
 # 发布脚本
-# - Core 包作为 @musistudio/llms npm 包发布
+# - Core 包作为 @jhangyu/llms npm 包发布
 # - CLI 包作为 @CCR/cli npm 包发布
 # - Server 包发布为 Docker 镜像
 
-VERSION=$(node -p "require('../packages/cli/package.json').version")
-IMAGE_NAME="ccr/router"
+VERSION=$(node -p "require('../package.json').version")
+IMAGE_NAME="jhangyu/claude-code-router"
 IMAGE_TAG="${VERSION}"
 LATEST_TAG="latest"
 
@@ -38,12 +38,12 @@ case "$PUBLISH_TYPE" in
 esac
 
 # ===========================
-# 发布 Core npm 包 (@musistudio/llms)
+# 发布 Core npm 包 (@jhangyu/llms)
 # ===========================
 publish_core_npm() {
   echo ""
   echo "========================================="
-  echo "发布 npm 包 @musistudio/llms"
+  echo "发布 npm 包 @jhangyu/llms"
   echo "========================================="
 
   # 检查是否已登录 npm
@@ -66,7 +66,7 @@ publish_core_npm() {
 
   echo ""
   echo "✅ Core npm 包发布成功!"
-  echo "   包名: @musistudio/llms@${CORE_VERSION}"
+  echo "   包名: @jhangyu/llms@${CORE_VERSION}"
 }
 
 # ===========================
@@ -100,7 +100,7 @@ publish_npm() {
     // 移除 workspace 依赖
     delete pkg.dependencies['@CCR/shared'];
     delete pkg.dependencies['@CCR/server'];
-    pkg.dependencies['@musistudio/llms'] = require('../packages/server/package.json').dependencies['@musistudio/llms'];
+    pkg.dependencies['@jhangyu/llms'] = require('../packages/server/package.json').dependencies['@jhangyu/llms'];
     pkg.peerDependencies = {
       'node': '>=18.0.0'
     };
