@@ -5,8 +5,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# 安装 pnpm
-RUN npm install -g pnpm@latest && \
+# 安装与 Node 20 兼容的 pnpm 版本
+RUN npm install -g pnpm@10 && \
     rm -rf /root/.npm
 
 # 复制工作区配置文件
