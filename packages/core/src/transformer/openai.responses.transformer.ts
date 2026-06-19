@@ -608,9 +608,6 @@ export class OpenAIResponsesTransformer implements Transformer {
   }
 
   private normalizeRequestContent(content: any, role: string | undefined) {
-    // Clone the content object
-    const clone = { ...content };
-
     if (content.type === "text") {
       return {
         type: role === "assistant" ? "output_text" : "input_text",

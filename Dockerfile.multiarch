@@ -1,0 +1,104 @@
+# Multi-arch build Dockerfile (amd64 + arm64)
+# Workaround for QEMU cross-compilation on macOS arm64
+
+# ===========================
+# Build stage
+# ===========================
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+ENV PATH="/app/node_modules/.bin:${PATH}"
+
+RUN npm install -g pnpm@9 && \
+    rm -rf /root/.npm
+
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.base.json ./
+COPY scripts ./scripts
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/core/package.json ./packages/core/
+COPY packages/server/package.json ./packages/server/
+
+# pnpm v9 reads onlyBuiltDependencies from package.json pnpm field
+# enable-pre-post-scripts ensures esbuild binary is installed
+RUN echo 'enable-pre-post-scripts=true' > .npmrc
+
+RUN pnpm install --no-frozen-lockfile && \
+    pnpm store prune
+
+COPY packages/shared ./packages/shared
+COPY packages/core ./packages/core
+COPY packages/server ./packages/server
+
+# Patch build scripts to use esbuild JS API (avoids QEMU exec format error)
+RUN node -e " \
+  const fs = require('fs'); \
+  ['scripts/build-server.js','scripts/build-shared.js'].forEach(f => { \
+    let code = fs.readFileSync(f,'utf8'); \
+    code = code.replace( \
+      /execSync\('esbuild ([^']+)',/g, \
+      (match, args) => { \
+        const parts = args.split(' '); \
+        const entry = parts[0]; \
+        const flags = {}; \
+        parts.slice(1).forEach(p => { \
+          if(p.startsWith('--')) { \
+            const [k,v] = p.slice(2).split('='); \
+            if(v===undefined) flags[k]=true; else flags[k]=v; \
+          } \
+        }); \
+        const opts = []; \
+        if(entry) opts.push('entryPoints:[\"'+entry+'\"]'); \
+        if(flags.bundle) opts.push('bundle:true'); \
+        if(flags.platform) opts.push('platform:\"'+flags.platform+'\"'); \
+        if(flags.minify) opts.push('minify:true'); \
+        if(flags['tree-shaking']) opts.push('treeShaking:true'); \
+        if(flags.outfile) opts.push('outfile:\"'+flags.outfile+'\"'); \
+        if(flags.outdir) opts.push('outdir:\"'+flags.outdir+'\"'); \
+        if(flags.format) opts.push('format:\"'+flags.format+'\"'); \
+        if(flags.target) opts.push('target:\"'+flags.target+'\"'); \
+        return 'require(\"esbuild\").buildSync({'+opts.join(',')+'}); void(0,'; \
+      } \
+    ); \
+    fs.writeFileSync(f, code); \
+  });"
+
+WORKDIR /app/packages/core
+RUN pnpm build
+
+WORKDIR /app/packages/shared
+RUN pnpm build
+
+WORKDIR /app/packages/server
+RUN pnpm build && \
+    rm -rf node_modules/.cache
+
+# ===========================
+# Production stage
+# ===========================
+FROM node:20-alpine AS production
+
+RUN apk add --no-cache curl && \
+    npm install -g pm2 pm2-logrotate --no-scripts && \
+    pm2 install pm2-logrotate && \
+    pm2 set pm2-logrotate:max_size 100M && \
+    pm2 set pm2-logrotate:retain 5 && \
+    pm2 set pm2-logrotate:compress true && \
+    pm2 set pm2-logrotate:rotateInterval '0 0 * * *'
+
+WORKDIR /app
+
+COPY --from=builder /app/packages/core ./packages/core
+COPY --from=builder /app/packages/server/node_modules ./packages/server/node_modules
+COPY --from=builder /app/packages/server/dist ./packages/server/dist
+COPY packages/ui/dist/. ./packages/server/dist/
+COPY packages/server/ecosystem.config.cjs /app/
+
+RUN mkdir -p /root/.claude-code-router/logs
+
+EXPOSE 3456
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://127.0.0.1:3456/health || exit 1
+
+CMD ["pm2-runtime", "start", "/app/ecosystem.config.cjs"]

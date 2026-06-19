@@ -70,7 +70,7 @@ export class AnthropicTransformer implements Transformer {
       }
     }
 
-    const requestMessages = structuredClone(request.messages || []);
+    const requestMessages = request.messages || [];
 
     requestMessages?.forEach((msg: any) => {
       if (msg.role === "user" || msg.role === "assistant") {

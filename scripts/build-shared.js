@@ -24,7 +24,7 @@ try {
 
   // Build the shared package
   console.log('Building shared package...');
-  execSync('esbuild src/index.ts --bundle --platform=node --minify --tree-shaking=true --outfile=dist/index.js', {
+  execSync('esbuild src/index.ts --bundle --platform=node --minify --tree-shaking=true --log-level=warning --outfile=dist/index.js', {
     stdio: 'inherit',
     cwd: sharedDir
   });

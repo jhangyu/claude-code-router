@@ -13,19 +13,19 @@ export class ReasoningTransformer implements Transformer {
     request: UnifiedChatRequest
   ): Promise<UnifiedChatRequest> {
     if (!this.enable) {
-      request.thinking = {
-        type: "disabled",
-        budget_tokens: -1,
-      };
-      request.enable_thinking = false;
+      request.thinking = { type: "disabled" };
+      delete (request as any).reasoning;
       return request;
     }
     if (request.reasoning) {
-      request.thinking = {
-        type: "enabled",
-        budget_tokens: request.reasoning.max_tokens,
+      const thinking: any = {
+        type: request.reasoning.enabled !== false ? "enabled" : "disabled",
       };
-      request.enable_thinking = true;
+      if (this.options?.includeBudgetTokens !== false && request.reasoning.max_tokens) {
+        thinking.budget_tokens = request.reasoning.max_tokens;
+      }
+      request.thinking = thinking;
+      delete (request as any).reasoning;
     }
     return request;
   }
@@ -35,8 +35,9 @@ export class ReasoningTransformer implements Transformer {
     if (response.headers.get("Content-Type")?.includes("application/json")) {
       const jsonResponse = await response.json();
       if (jsonResponse.choices[0]?.message.reasoning_content) {
-        jsonResponse.thinking = {
-          content: jsonResponse.choices[0]?.message.reasoning_content
+        jsonResponse.choices[0].message.thinking = {
+          content: jsonResponse.choices[0].message.reasoning_content,
+          signature: Date.now().toString()
         }
       }
       // Handle non-streaming response if needed

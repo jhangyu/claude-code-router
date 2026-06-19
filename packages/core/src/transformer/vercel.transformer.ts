@@ -16,18 +16,20 @@ export class VercelTransformer implements Transformer {
     if (!request.model.includes("claude")) {
       stripCacheControl(request);
       // Keep image handling for non-claude
-      request.messages.forEach((msg) => {
-        if (Array.isArray(msg.content)) {
-          msg.content.forEach((item: any) => {
-            if (item.type === "image_url") {
-              if (!item.image_url.url.startsWith("http")) {
-                item.image_url.url = `data:${item.media_type};base64,${item.image_url.url}`;
+      if (Array.isArray(request.messages)) {
+        request.messages.forEach((msg) => {
+          if (Array.isArray(msg.content)) {
+            msg.content.forEach((item: any) => {
+              if (item.type === "image_url") {
+                if (!item.image_url.url.startsWith("http")) {
+                  item.image_url.url = `data:${item.media_type};base64,${item.image_url.url}`;
+                }
+                delete item.media_type;
               }
-              delete item.media_type;
-            }
-          });
-        }
-      });
+            });
+          }
+        });
+      }
     } else {
       request.messages.forEach((msg) => {
         if (Array.isArray(msg.content)) {

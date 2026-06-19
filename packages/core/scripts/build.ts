@@ -34,7 +34,6 @@ const baseConfig: esbuild.BuildOptions = {
 
 // Generate type declarations with resolved path aliases
 function generateTypeDeclarations() {
-  console.log("Skipping type declaration generation (using manual plugins.d.ts)...");
   // Type declarations are manually maintained in dist/plugins.d.ts
   // This avoids issues with @/ path aliases in auto-generated declarations
 }
