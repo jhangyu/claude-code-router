@@ -21,13 +21,20 @@
 
 ## ✨ Features
 
-- **Model Routing**: Route requests to different models based on your needs (e.g., background tasks, thinking, long context).
-- **Multi-Provider Support**: Supports various model providers like OpenRouter, DeepSeek, Ollama, Gemini, Volcengine, and SiliconFlow.
-- **Request/Response Transformation**: Customize requests and responses for different providers using transformers.
-- **Dynamic Model Switching**: Switch models on-the-fly within Claude Code using the `/model` command.
-- **CLI Model Management**: Manage models and providers directly from the terminal with `ccr model`.
-- **GitHub Actions Integration**: Trigger Claude Code tasks in your GitHub workflows.
-- **Plugin System**: Extend functionality with custom transformers.
+- **Model Routing**: Route requests to different models based on scenario — default, background tasks, reasoning/thinking, long context, web search, and image tasks.
+- **Agent Role Routing**: Automatically detect agent roles (architect, planner, explorer, debugger, reviewer, implementer, tester) from system prompts and route each to a dedicated model.
+- **Custom Router**: Advanced routing with highest-priority explicit `provider,model` selection. Implement custom routing logic via a JavaScript module, with ordered priority: explicit model override, long context, subagent tags, background, agent role detection, web search, and thinking.
+- **Subagent Model Tags**: Specify models for subagent tasks using `<CCR-SUBAGENT-MODEL>provider,model</CCR-SUBAGENT-MODEL>` tags at the beginning of subagent prompts.
+- **Multi-Provider Support**: Supports various model providers like OpenRouter, DeepSeek, Ollama, Gemini, Volcengine, ModelScope, DashScope, and any OpenAI-compatible API.
+- **Request/Response Transformation**: Modular transformer pipeline to adapt requests and responses for different provider APIs. Transformers can be applied globally, per-model, or with custom options.
+- **Prompt Cache Control Forwarding**: Forward prompt cache control (`cache_control`) to upstream LLM providers that support it, reducing latency and cost for repeated prompts.
+- **GLM 5.2 Reasoning Support**: Built-in reasoning/thinking transformer for GLM 5.2 models, with interleaved thinking support.
+- **Preset Management**: Export, import, share, and reuse configurations via the preset system (`ccr preset`). Sensitive data is automatically sanitized on export.
+- **Dynamic Model Switching**: Switch models on-the-fly within Claude Code using the `/model` command, or manage models interactively via `ccr model`.
+- **Plugin System**: Extend functionality with custom transformers and plugins (e.g., token-speed monitoring, status line).
+- **Agent SDK Integration**: Use the `ccr activate` command to set environment variables for direct `claude` command usage and Agent SDK applications.
+- **x-api-key Auth Passthrough**: Support for providers that authenticate via `x-api-key` header passthrough (e.g., OpenCode Zen, local providers).
+- **CI/CD Integration**: Compatible with GitHub Actions, Docker, and other non-interactive environments via `NON_INTERACTIVE_MODE`.
 
 ## 🚀 Getting Started
 
@@ -331,6 +338,8 @@ The `Providers` array is where you define the different model providers you want
 - `models`: A list of model names available from this provider.
 - `transformer` (optional): Specifies transformers to process requests and responses.
 
+For providers that authenticate via `x-api-key` header instead of `Authorization: Bearer`, the router supports passthrough authentication — set the `api_key` field and requests will be forwarded with the appropriate header.
+
 #### Transformers
 
 Transformers allow you to modify the request and response payloads to ensure compatibility with different provider APIs.
@@ -386,7 +395,7 @@ Transformers allow you to modify the request and response payloads to ensure com
 
 **Available Built-in Transformers:**
 
-- `Anthropic`:If you use only the `Anthropic` transformer, it will preserve the original request and response parameters(you can use it to connect directly to an Anthropic endpoint).
+- `Anthropic`: If you use only the `Anthropic` transformer, it will preserve the original request and response parameters (you can use it to connect directly to an Anthropic endpoint).
 - `deepseek`: Adapts requests/responses for DeepSeek API.
 - `gemini`: Adapts requests/responses for Gemini API.
 - `openrouter`: Adapts requests/responses for OpenRouter API. It can also accept a `provider` routing parameter to specify which underlying providers OpenRouter should use. For more details, refer to the [OpenRouter documentation](https://openrouter.ai/docs/features/provider-routing). See an example below:
@@ -411,12 +420,12 @@ Transformers allow you to modify the request and response payloads to ensure com
 - `maxtoken`: Sets a specific `max_tokens` value.
 - `tooluse`: Optimizes tool usage for certain models via `tool_choice`.
 - `gemini-cli` (experimental): Unofficial support for Gemini via Gemini CLI [gemini-cli.js](https://gist.github.com/musistudio/1c13a65f35916a7ab690649d3df8d1cd).
-- `reasoning`: Used to process the `reasoning_content` field.
+- `reasoning`: Used to process the `reasoning_content` field. Supports GLM 5.2 and other models with reasoning/thinking capabilities, including interleaved thinking.
 - `sampling`: Used to process sampling information fields such as `temperature`, `top_p`, `top_k`, and `repetition_penalty`.
 - `enhancetool`: Adds a layer of error tolerance to the tool call parameters returned by the LLM (this will cause the tool call information to no longer be streamed).
-- `cleancache`: Clears the `cache_control` field from requests.
+- `cleancache`: Clears the `cache_control` field from requests. By default, the router forwards prompt cache control headers to upstream providers that support it. Use this transformer if you need to strip cache control instead.
 - `vertex-gemini`: Handles the Gemini API using Vertex authentication.
-- `chutes-glm` Unofficial support for GLM 4.5 model via Chutes [chutes-glm-transformer.js](https://gist.github.com/vitobotta/2be3f33722e05e8d4f9d2b0138b8c863).
+- `chutes-glm`: Unofficial support for GLM 4.5 model via Chutes [chutes-glm-transformer.js](https://gist.github.com/vitobotta/2be3f33722e05e8d4f9d2b0138b8c863).
 - `qwen-cli` (experimental): Unofficial support for qwen3-coder-plus model via Qwen CLI [qwen-cli.js](https://gist.github.com/musistudio/f5a67841ced39912fd99e42200d5ca8b).
 - `rovo-cli` (experimental): Unofficial support for gpt-5 via Atlassian Rovo Dev CLI [rovo-cli.js](https://gist.github.com/SaseQ/c2a20a38b11276537ec5332d1f7a5e53).
 
@@ -447,9 +456,43 @@ The `Router` object defines which model to use for different scenarios:
 - `longContext`: A model for handling long contexts (e.g., > 60K tokens).
 - `longContextThreshold` (optional): The token count threshold for triggering the long context model. Defaults to 60000 if not specified.
 - `webSearch`: Used for handling web search tasks and this requires the model itself to support the feature. If you're using openrouter, you need to add the `:online` suffix after the model name.
-- `image` (beta): Used for handling image-related tasks (supported by CCR’s built-in agent). If the model does not support tool calling, you need to set the `config.forceUseImageAgent` property to `true`.
+- `image` (beta): Used for handling image-related tasks (supported by CCR's built-in agent). If the model does not support tool calling, you need to set the `config.forceUseImageAgent` property to `true`.
 
-- You can also switch models dynamically in Claude Code with the `/model` command:
+##### Agent Role Routing
+
+In addition to the scenario-based routing above, the custom router supports routing based on agent roles detected from system prompts. When enabled via `CUSTOM_ROUTER_PATH`, the following role-based routes are available:
+
+- `architect`: For system architecture, API design, microservices patterns.
+- `planner`: For implementation planning, software design, turning vague requirements into plans.
+- `explorer`: For codebase exploration, feature discovery, and read-only code search.
+- `debugger`: For root cause investigation, error analysis, and hypothesis-driven debugging.
+- `reviewer`: For code review, security auditing, and static analysis.
+- `implementer`: For feature implementation, code building, and parallel feature work.
+- `tester`: For test automation, TDD workflows, and test suite creation.
+
+Configure these routes in your `Router` alongside other scenarios:
+
+```json
+{
+  "Router": {
+    "default": "openrouter,anthropic/claude-sonnet-4",
+    "background": "ollama,qwen2.5-coder:latest",
+    "think": "deepseek,deepseek-reasoner",
+    "architect": "openrouter,anthropic/claude-opus-4-20250514",
+    "planner": "openrouter,anthropic/claude-opus-4-20250514",
+    "explorer": "openrouter,anthropic/claude-haiku-4-5-20251001",
+    "debugger": "deepseek,deepseek-reasoner",
+    "reviewer": "openrouter,anthropic/claude-sonnet-4",
+    "implementer": "deepseek,deepseek-chat",
+    "tester": "openrouter,anthropic/claude-haiku-4-5-20251001",
+    "longContext": "openrouter,google/gemini-2.5-pro-preview",
+    "longContextThreshold": 60000,
+    "webSearch": "gemini,gemini-2.5-flash"
+  }
+}
+```
+
+You can also switch models dynamically in Claude Code with the `/model` command:
 `/model provider_name,model_name`
 Example: `/model openrouter,anthropic/claude-3.5-sonnet`
 
@@ -466,6 +509,19 @@ In your `config.json`:
 ```
 
 The custom router file must be a JavaScript module that exports an `async` function. This function receives the request object and the config object as arguments and should return the provider and model name as a string (e.g., `"provider_name,model_name"`), or `null` to fall back to the default router.
+
+##### Routing Priority
+
+The custom router evaluates scenarios in strict priority order:
+
+1. **Explicit Model** (highest): If `req.body.model` contains a valid `"provider,model"` string that exists in your config, it is used directly. This gives you explicit control over which model handles a request.
+2. **Long Context**: When the request token count exceeds `longContextThreshold`, the `longContext` model is used.
+3. **Subagent Model Tag**: Extracts `<CCR-SUBAGENT-MODEL>provider,model</CCR-SUBAGENT-MODEL>` tags from subagent prompts.
+4. **Background**: Detects Claude Haiku requests and routes to the `background` model.
+5. **Agent Roles**: Detects agent role from system prompts (architect, planner, explorer, debugger, reviewer, implementer, tester).
+6. **Web Search**: When the request includes web search tools.
+7. **Think**: When the request includes thinking mode (`req.body.thinking`).
+8. **Default** (fallback): Uses the `default` model from `Router`.
 
 Here is an example of a `custom-router.js` based on `custom-router.example.js`:
 
@@ -492,6 +548,8 @@ module.exports = async function router(req, config) {
 };
 ```
 
+For the full implementation including all scenario detectors, agent role matching, and explicit model resolution, refer to the bundled `custom-router.js` in the repository.
+
 ##### Subagent Routing
 
 For routing within subagents, you must specify a particular provider and model by including `<CCR-SUBAGENT-MODEL>provider,model</CCR-SUBAGENT-MODEL>` at the **beginning** of the subagent's prompt. This allows you to direct specific subagent tasks to designated models.
@@ -502,6 +560,8 @@ For routing within subagents, you must specify a particular provider and model b
 <CCR-SUBAGENT-MODEL>openrouter,anthropic/claude-3.5-sonnet</CCR-SUBAGENT-MODEL>
 Please help me analyze this code snippet for potential optimizations...
 ```
+
+The tag is automatically stripped from the prompt before the request is forwarded to the upstream provider.
 
 ## Status Line (Beta)
 To better monitor the status of claude-code-router at runtime, version v1.0.40 includes a built-in statusline tool, which you can enable in the UI.

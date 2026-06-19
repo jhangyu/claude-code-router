@@ -15,3 +15,4 @@ eslint.config.cjs
 config.json
 tsconfig.json
 dist
+__tests__
