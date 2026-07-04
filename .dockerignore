@@ -1,0 +1,14 @@
+.git
+node_modules
+docs/node_modules
+dist
+docs/build
+docs/.docusaurus
+.codebase-memory
+.claude
+.env
+config.json
+newconfig.json
+settings-ccr.json
+log.txt
+*.log
