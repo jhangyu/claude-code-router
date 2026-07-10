@@ -199,6 +199,7 @@ Built-in transformers:
 - `maxtoken` - Adjust max_tokens parameter
 - `tooluse` - Tool use conversion
 - `reasoning` - Reasoning mode conversion
+- `effort` - Override reasoning effort per model
 - `enhancetool` - Enhance tool functionality
 
 ## Environment Variable Interpolation

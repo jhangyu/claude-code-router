@@ -245,6 +245,53 @@ Injects custom parameters into requests:
 }
 ```
 
+### effort
+
+Override reasoning/thinking effort per model. Maps to provider-specific protocols:
+
+- **OpenAI / OpenAI Responses**: `reasoning.effort` in request body
+- **Gemini 3**: `thinkingConfig.thinkingLevel`
+- **Gemini <3 / Anthropic-style**: `thinkingConfig.thinkingBudget` / `thinking.budget_tokens` (via `max_tokens` option or default mapping)
+
+**Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `effort` | string | - | Named level: `"high"`, `"medium"`, `"low"`, or `"none"` (disable) |
+| `max_tokens` | number | auto | Budget tokens for Anthropic/Gemini <3. Overrides default mapping |
+
+Default effort→max_tokens mapping: high=16000, medium=4096, low=1024, none=0.
+
+**Usage:**
+
+```json
+{
+  "transformers": [
+    {
+      "name": "effort",
+      "options": { "effort": "high" },
+      "models": ["deepseek,deepseek-reasoner"]
+    },
+    {
+      "name": "effort",
+      "options": { "effort": "low" },
+      "providers": ["groq"]
+    },
+    {
+      "name": "effort",
+      "options": { "effort": "medium", "max_tokens": 8192 },
+      "models": ["openrouter,anthropic/claude-sonnet-4"]
+    }
+  ]
+}
+```
+
+**Notes:**
+
+- Does NOT increase effort beyond what the upstream Claude Code requested — it only overrides the value. To force higher effort than the default, set `effort` higher than the auto-detected level.
+- When `effort: "none"`, disables reasoning/thinking entirely (`enabled: false`, `max_tokens: 0`).
+- Runs at `transformRequestIn` stage, after the Anthropic `thinking.budget_tokens` is parsed into unified `reasoning.effort`.
+
 ## Creating Custom Transformers
 
 ### Simple Transformer: Modifying Requests
